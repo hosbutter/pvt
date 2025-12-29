@@ -1,0 +1,367 @@
+<div id="new-left">
+  <div id="profile-card">
+    <div id="pfp-container">
+      <img src="assets/imgs/pfp.JPG" alt="Profile" id="pfp" loading="lazy" />
+
+      <div id="status-indicator online"></div>
+    </div>
+
+    <div id="profile-info">
+      <div id="name-row">
+        <span id="display-name">Ishi</span>
+
+        <span id="pronouns">They</span>
+      </div>
+
+      <div id="username">@kikyyyyyyyyyyyyyyy</div>
+
+      <a href="#" id="profile-link">click me</a>
+    </div>
+  </div>
+  <div id="totals-box">
+    <span id="totals-label">Totals</span>
+    <div id="totals-list">
+      <p class="totals-list-items">Achievements: 3</p>
+      <p class="totals-list-items">Play Time: 2Hrs</p>
+    </div>
+  </div>
+</div>
+
+<div id="new-nav">
+  <div id="tab-group">
+    <button class="tab-btns active" data-target="profile">Profile</button>
+    <button class="tab-btns" data-target="library">Library</button>
+    <button class="tab-btns" data-target="moments">Moments</button>
+    <button class="tab-btns" data-target="wishlist">Wishlist</button>
+  </div>
+</div>
+
+<div id="new-content">
+  <div id="profile" class="tab-contents active">
+    <div class="profile-container">
+      <div class="profile-banner">
+        <img src="assets/imgs/pfp.JPG" alt="Banner" class="banner-img" />
+      </div>
+
+      <div class="profile-header">
+        <div class="pfp-main-wrapper">
+          <img src="assets/imgs/pfp.JPG" alt="Profile" class="pfp-main" />
+          <div class="status-dot online"></div>
+        </div>
+
+        <div class="header-content">
+          <div class="header-top">
+            <h2 class="full-name">Marin Kitagawa</h2>
+            <span class="user-handle">@marin_shine</span>
+          </div>
+          <div class="status-note">
+            <span class="note-bubble">Listening to "Electric Dreams" 🎧</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-body">
+        <div class="about-me">
+          <h3>About Me</h3>
+          <p>
+            Cosplayer, gamer, and lover of all things pastel and neon. ⚡🌸
+            Welcome to my digital space!
+          </p>
+        </div>
+
+        <div class="highlights-section">
+          <h3>Highlights</h3>
+          <div class="highlights-scroll">
+            <div class="highlight-item">
+              <div class="highlight-circle">
+                <img src="assets/imgs/pfp.JPG" />
+              </div>
+              <span>Cosplay</span>
+            </div>
+            <div class="highlight-item">
+              <div class="highlight-circle">
+                <img src="assets/imgs/pfp.JPG" />
+              </div>
+              <span>Events</span>
+            </div>
+            <div class="highlight-item">
+              <div class="highlight-circle">
+                <img src="assets/imgs/pfp.JPG" />
+              </div>
+              <span>Gaming</span>
+            </div>
+            <div class="highlight-item">
+              <div class="highlight-circle">
+                <img src="assets/imgs/pfp.JPG" />
+              </div>
+              <span>Food</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="rotation-section">
+      <div class="rotation-header">
+        <h2 class="section-title">CURRENT ROTATION</h2>
+        <div class="slider-nav">
+          <button class="nav-btn" onclick="rotate(-1)">PREV</button>
+          <button class="nav-btn" onclick="rotate(1)">NEXT</button>
+        </div>
+      </div>
+      <div class="slider-window">
+        <div class="slider-rail" id="sliderRail">
+          <div class="game-card active">
+            <div
+              class="card-banner"
+              style="background-image: url(assets/imgs/pfp.JPG)"
+            ></div>
+            <div class="card-body">
+              <span class="genre-chip">COMPETITIVE</span>
+              <h3>Elden Ring</h3>
+            </div>
+          </div>
+          <div class="game-card">
+            <div
+              class="card-banner"
+              style="background-image: url(assets/imgs/pfp.JPG)"
+            ></div>
+            <div class="card-body">
+              <span class="genre-chip">VISUAL NOVEL</span>
+              <h3>Hades</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="gaming-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-label">Total Playtime</span>
+          <div class="stat-value" id="total-hours">0h</div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Daily Average</span>
+          <div class="stat-value" id="avg-hours">0h</div>
+        </div>
+        <div class="stat-card highlight">
+          <span class="stat-label">Peak Session</span>
+          <div class="stat-value" id="peak-hours">0h</div>
+        </div>
+      </div>
+
+      <div class="graph-wrapper">
+        <div class="graph-header">
+          <h3>Yearly Activity</h3>
+          <div class="graph-legend">
+            <span>0h</span>
+            <div class="square level-1"></div>
+            <div class="square level-2"></div>
+            <div class="square level-3"></div>
+            <div class="square level-4"></div>
+            <span>10h+</span>
+          </div>
+        </div>
+
+        <div id="commit-graph" class="commit-graph"></div>
+      </div>
+    </div>
+    <div class="favorites-container">
+      <div class="favorites-hero">
+        <h1 class="hero-title">Hall of Fame</h1>
+        <p class="hero-subtitle">
+          A curated collection of my top-tier experiences.
+        </p>
+      </div>
+
+      <div class="fav-grid">
+        <div class="fav-card vn-style">
+          <div class="fav-image-box">
+            <img src="assets/imgs/pfp.JPG" alt="Game Title" />
+            <div class="type-badge">Visual Novel</div>
+          </div>
+          <div class="fav-details">
+            <h4>The House in Fata Morgana</h4>
+            <p>Gothic / Psychological</p>
+          </div>
+        </div>
+
+        <div class="fav-card comp-style">
+          <div class="fav-image-box">
+            <img src="assets/imgs/pfp.JPG" alt="Game Title" />
+            <div class="type-badge">Competitive</div>
+          </div>
+          <div class="fav-details">
+            <h4>Counter-Strike 2</h4>
+            <p>Tactical Shooter / Global Elite</p>
+          </div>
+        </div>
+
+        <div class="fav-card comp-style">
+          <div class="fav-image-box">
+            <img src="assets/imgs/pfp.JPG" alt="Game Title" />
+            <div class="type-badge">Competitive</div>
+          </div>
+          <div class="fav-details">
+            <h4>Valorant</h4>
+            <p>Hero Shooter / Ascendant</p>
+          </div>
+        </div>
+
+        <div class="fav-card vn-style">
+          <div class="fav-image-box">
+            <img src="assets/imgs/pfp.JPG" alt="Game Title" />
+            <div class="type-badge">Visual Novel</div>
+          </div>
+          <div class="fav-details">
+            <h4>Steins;Gate</h4>
+            <p>Sci-Fi / Time Travel</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="library" class="tab-contents">
+    <div class="library-container">
+      <div class="library-header">
+        <h1 class="hero-title">Game Library</h1>
+        <div class="table-controls">
+          <div class="sort-group">
+            <button class="sort-btn" data-sort="time">Sort by Time</button>
+            <button class="sort-btn" data-sort="progress">
+              Sort by Progress
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <table class="game-table" id="game-library-table">
+        <thead>
+          <tr>
+            <th>Game Name</th>
+            <th>Playtime</th>
+            <th>Achievements</th>
+            <th>Platform</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-platform="steam" data-time="240" data-progress="85">
+            <td class="game-cell" data-label="Game">
+              <img src="assets/imgs/pfp.JPG" class="game-mini-icon" /><span
+                >Elden Ring</span
+              >
+            </td>
+            <td data-label="Playtime">240h</td>
+            <td data-label="Progress" class="progress-cell">
+              <div class="progress-wrapper">
+                <div class="progress-bar-bg">
+                  <div class="progress-fill pink" style="width: 85%"></div>
+                </div>
+                <span class="progress-text">36/42</span>
+              </div>
+            </td>
+            <td data-label="Platform">
+              <span class="platform-tag steam">Steam</span>
+            </td>
+          </tr>
+          <tr data-platform="riot" data-time="500" data-progress="1">
+            <td class="game-cell" data-label="Game">
+              <img src="assets/imgs/pfp.JPG" class="game-mini-icon" /><span
+                >Valo</span
+              >
+            </td>
+            <td data-label="Playtime">500h</td>
+            <td data-label="Progress" class="progress-cell">
+              <div class="progress-wrapper">
+                <div class="progress-bar-bg">
+                  <div class="progress-fill pink" style="width: 15%"></div>
+                </div>
+                <span class="progress-text">1/100</span>
+              </div>
+            </td>
+            <td data-label="Platform">
+              <span class="platform-tag steam">Riot</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div id="moments" class="tab-contents">
+    <div class="gallery-section">
+      <div class="favorites-hero">
+        <h1 class="hero-title">Media Vault</h1>
+        <p class="hero-subtitle">Simple collection of screenshots and clips.</p>
+      </div>
+
+      <div class="simple-media-grid">
+        <div class="media-item">
+          <img src="assets/imgs/pfp.JPG" alt="Screenshot" />
+          <div class="media-label">Screenshot</div>
+        </div>
+
+        <div class="media-item">
+          <iframe
+            src="https://www.youtube.com/embed/VIDEO_ID"
+            frameborder="0"
+            allowfullscreen
+          ></iframe>
+          <div class="media-label">YouTube Clip</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="wishlist" class="tab-contents">
+    <div id="new-content">
+      <div class="wishlist-container">
+        <div class="favorites-hero">
+          <h1 class="hero-title">Wishlist</h1>
+          <p class="hero-subtitle">Games and gear I'm currently eyeing.</p>
+        </div>
+
+        <div class="wishlist-grid">
+          <div class="wish-card priority-med">
+            <div class="wish-image">
+              <img src="assets/imgs/pfp.JPG" alt="GTA VI" />
+              <div class="price-tag">$69.99</div>
+            </div>
+            <div class="wish-info">
+              <div class="wish-header">
+                <h4>Grand Theft Auto VI</h4>
+              </div>
+              <p class="wish-status">Release: Fall 2025</p>
+              <a href="#" class="wish-link">View on Store</a>
+            </div>
+          </div>
+
+          <div class="wish-card priority-med">
+            <div class="wish-image">
+              <img src="assets/imgs/pfp.JPG" alt="RTX 5080" />
+              <div class="price-tag">TBA</div>
+            </div>
+            <div class="wish-info">
+              <div class="wish-header">
+                <h4>RTX 5080 GPU</h4>
+              </div>
+              <p class="wish-status">Waiting for Benchmarks</p>
+              <a href="#" class="wish-link">View Details</a>
+            </div>
+          </div>
+
+          <div class="wish-card priority-med">
+            <div class="wish-image">
+              <img src="assets/imgs/pfp.JPG" alt="Hades II" />
+              <div class="price-tag">$29.99</div>
+            </div>
+            <div class="wish-info">
+              <div class="wish-header">
+                <h4>Hades II</h4>
+              </div>
+              <p class="wish-status">Waiting for Sale</p>
+              <a href="#" class="wish-link">Steam Link</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
