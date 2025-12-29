@@ -1,112 +1,95 @@
-const leftSb = document.getElementById("sidebar-left");
-const rightSb = document.getElementById("sidebar-right");
-const overlay = document.getElementById("overlay");
-const leftBtn = document.getElementById("left-toggle");
-const rightBtn = document.getElementById("right-toggle");
-const navBar = document.getElementById("nav-bar");
-const contentArea = document.getElementById("content");
-const treeLinks = document.querySelectorAll(".tree-links");
-const pathElement = document.getElementById("current-path");
-const loadingBarContainer = document.getElementById("loading-bar-container");
-const loadingBar = document.getElementById("loading-bar");
+// Core element references (must match index.html)
+const sidebarLeftContainer = document.getElementById("sidebarLeftContainer");
+const sidebarRightContainer = document.getElementById("sidebarRightContainer");
+const pageOverlay = document.getElementById("pageOverlay");
+const sidebarLeftToggleBtn = document.getElementById("sidebarLeftToggleBtn");
+const sidebarRightToggleBtn = document.getElementById("sidebarRightToggleBtn");
+const topNavBar = document.getElementById("topNavBar");
+const mainContent = document.getElementById("mainContent");
+const sidebarRightCurrentPath = document.getElementById("sidebarRightCurrentPath");
+const topLoadingBarContainer = document.getElementById("topLoadingBarContainer");
+const topLoadingBar = document.getElementById("topLoadingBar");
 
-// --- Slider Globals ---
 let currentIdx = 0;
 let autoSlideTimer = null;
+const terminalState = { neon: false, ghost: false, invert: false };
+
+// Small helper for safe query selectors within injected content
+function q(sel, root = document) { return root.querySelector(sel); }
+function qa(sel, root = document) { return Array.from(root.querySelectorAll(sel)); }
 
 function closeAll() {
-  [leftSb, rightSb, overlay].forEach((el) => el.classList.remove("active"));
-  [leftBtn, rightBtn].forEach((el) => el.classList.remove("active-btn"));
+  [sidebarLeftContainer, sidebarRightContainer, pageOverlay].forEach(el => el && el.classList.remove("active"));
+  [sidebarLeftToggleBtn, sidebarRightToggleBtn].forEach(el => el && el.classList.remove("activeBtn"));
 }
 
-// --- Navigation Logic ---
-leftBtn.onclick = () => {
-  const isOpen = leftSb.classList.contains("active");
-  closeAll();
-  if (!isOpen) {
-    leftSb.classList.add("active");
-    overlay.classList.add("active");
-  }
-};
+if (sidebarLeftToggleBtn) {
+  sidebarLeftToggleBtn.addEventListener("click", () => {
+    const open = sidebarLeftContainer.classList.contains("active");
+    closeAll();
+    if (!open) { sidebarLeftContainer.classList.add("active"); pageOverlay.classList.add("active"); }
+  });
+}
+if (sidebarRightToggleBtn) {
+  sidebarRightToggleBtn.addEventListener("click", () => {
+    const open = sidebarRightContainer.classList.contains("active");
+    closeAll();
+    if (!open) { sidebarRightContainer.classList.add("active"); pageOverlay.classList.add("active"); }
+  });
+}
+if (pageOverlay) pageOverlay.addEventListener("click", closeAll);
 
-rightBtn.onclick = () => {
-  const isOpen = rightSb.classList.contains("active");
-  closeAll();
-  if (!isOpen) {
-    rightSb.classList.add("active");
-    overlay.classList.add("active");
-  }
-};
-
-overlay.onclick = closeAll;
-
-// --- Rotation Slider Engine ---
+// ROTATION (slider) functions
 function rotate(step) {
-  const rail = document.getElementById("sliderRail");
-  const cards = document.querySelectorAll(".game-card");
+  const rail = document.getElementById("rotationRail");
+  const cards = qa(".rotationCards", rail || document);
   if (!rail || cards.length === 0) return;
-
   cards[currentIdx].classList.remove("active");
   currentIdx = (currentIdx + step + cards.length) % cards.length;
   cards[currentIdx].classList.add("active");
-
-  const shift = currentIdx * -300;
-  rail.style.transform = `translateX(${shift}px)`;
+  rail.style.transform = `translateX(${currentIdx * -300}px)`;
 }
-
 function initAutoRotation() {
   if (autoSlideTimer) clearInterval(autoSlideTimer);
-  const rail = document.getElementById("sliderRail");
+  const rail = document.getElementById("rotationRail");
   if (!rail) return;
-
   autoSlideTimer = setInterval(() => rotate(1), 5000);
-
-  const windowEl = document.querySelector(".slider-window");
+  const windowEl = document.getElementById("rotationWindow") || q(".rotationWindow");
   if (windowEl) {
     windowEl.onmouseenter = () => clearInterval(autoSlideTimer);
     windowEl.onmouseleave = () => initAutoRotation();
   }
 }
 
-// --- Activity/Commit Graph Logic ---
-async function initCommitGraph() {
-  const graph = document.getElementById("commit-graph");
-  if (!graph) return;
-
+// Session activity (heatmap)
+async function initSessionActivity() {
+  const grid = document.getElementById("sessionActivityGrid");
+  if (!grid) return;
   try {
     const response = await fetch("./commits.json");
     if (!response.ok) throw new Error("JSON not found");
     const data = await response.json();
-
-    let total = 0,
-      peak = 0,
-      daysPlayed = 0;
-    graph.innerHTML = "";
-
+    grid.innerHTML = "";
+    let total = 0, peak = 0, daysPlayed = 0;
     for (let i = 0; i < 364; i++) {
       const square = document.createElement("div");
       square.classList.add("square");
       const day = data[i];
       const hrs = day ? parseFloat(day.hours) : 0;
-
       total += hrs;
       if (hrs > peak) peak = hrs;
       if (hrs > 0) daysPlayed++;
-
-      if (hrs === 0) square.classList.add("level-0");
-      else if (hrs <= 2) square.classList.add("level-1");
-      else if (hrs <= 5) square.classList.add("level-2");
-      else if (hrs <= 8) square.classList.add("level-3");
-      else square.classList.add("level-4");
-
+      if (hrs === 0) square.classList.add("level0");
+      else if (hrs <= 2) square.classList.add("level1");
+      else if (hrs <= 5) square.classList.add("level2");
+      else if (hrs <= 8) square.classList.add("level3");
+      else square.classList.add("level4");
       if (day) square.title = `${day.date}: ${hrs}h`;
-      graph.appendChild(square);
+      grid.appendChild(square);
     }
-
-    const totalEl = document.getElementById("total-hours");
-    const peakEl = document.getElementById("peak-hours");
-    const avgEl = document.getElementById("avg-hours");
-
+    const totalEl = document.getElementById("totalHours");
+    const peakEl = document.getElementById("peakHours");
+    const avgEl = document.getElementById("avgHours");
     if (totalEl) totalEl.textContent = `${total.toFixed(1)}h`;
     if (peakEl) peakEl.textContent = `${peak.toFixed(1)}h`;
     if (avgEl) avgEl.textContent = `${(total / (daysPlayed || 1)).toFixed(1)}h`;
@@ -115,290 +98,205 @@ async function initCommitGraph() {
   }
 }
 
+// Library filters & sorting
 function initLibraryFilters() {
-  const table = document.getElementById("game-library-table");
+  const table = document.getElementById("libraryTable");
   if (!table) return;
-
-  const tbody = table.querySelector("tbody");
+  const tbody = q("tbody", table);
+  if (!tbody) return;
   const rows = Array.from(tbody.querySelectorAll("tr"));
-  const platformFilter = document.getElementById("platform-filter");
-  const sortBtns = document.querySelectorAll(".sort-btn");
-
-  // --- Filtering Logic ---
-  if (platformFilter) {
-    platformFilter.onchange = (e) => {
-      const val = e.target.value;
-      rows.forEach((row) => {
-        const platform = row.getAttribute("data-platform");
-        row.style.display = val === "all" || platform === val ? "" : "none";
-      });
-    };
-  }
-
-  // --- Sorting Function ---
+  const sortBtns = qa(".sortBtn", table.closest(".pageTabContents") || document);
   const sortTable = (type, btn) => {
-    // UI Update
-    sortBtns.forEach((b) => b.classList.remove("active"));
+    sortBtns.forEach(b => b.classList.remove("active"));
     if (btn) btn.classList.add("active");
-
-    const sortedRows = rows.sort((a, b) => {
-      const valA = parseFloat(a.getAttribute(`data-${type}`)) || 0;
-      const valB = parseFloat(b.getAttribute(`data-${type}`)) || 0;
-      return valB - valA; // Descending
-    });
-
-    sortedRows.forEach((row) => tbody.appendChild(row));
+    const sorted = rows.sort((a,b) => (parseFloat(b.getAttribute(`data-${type}`))||0) - (parseFloat(a.getAttribute(`data-${type}`))||0));
+    sorted.forEach(r => tbody.appendChild(r));
   };
-
-  // Bind Clicks
-  sortBtns.forEach((btn) => {
-    btn.onclick = () => sortTable(btn.getAttribute("data-sort"), btn);
-  });
-
-  // --- AUTO-SELECT ON LOAD ---
-  // Find the button with data-sort="time" and trigger it
-  const defaultSortBtn = document.querySelector('.sort-btn[data-sort="time"]');
-  if (defaultSortBtn) {
-    sortTable("time", defaultSortBtn);
-  }
+  sortBtns.forEach(btn => btn.addEventListener("click", () => sortTable(btn.getAttribute("data-sort"), btn)));
+  const defaultBtn = document.querySelector('.sortBtn[data-sort="time"]');
+  if (defaultBtn) sortTable("time", defaultBtn);
 }
 
-// --- Tab Logic (with LocalStorage) ---
+// Tabs inside a loaded page
 function initInternalTabs() {
-  const tabs = document.querySelectorAll(".tab-btns");
-  const contents = document.querySelectorAll(".tab-contents");
-
-  // Get current page name from hash (e.g., #ishini) to create a unique key
-  const pageName = window.location.hash.substring(1) || "ishini";
+  const tabs = qa(".topNavTabBtns");
+  const contents = qa(".pageTabContents");
+  const pageName = window.location.hash.substring(1) || "gaming";
   const storageKey = `activeTab_${pageName}`;
-
-  // 1. RECOVERY LOGIC: Check if we have a saved tab for this specific page
   const savedTabId = localStorage.getItem(storageKey);
-
   if (savedTabId) {
     const targetTab = document.querySelector(`[data-target="${savedTabId}"]`);
     const targetContent = document.getElementById(savedTabId);
-
     if (targetTab && targetContent) {
-      // Clear defaults
-      tabs.forEach((t) => t.classList.remove("active"));
-      contents.forEach((c) => c.classList.remove("active"));
-
-      // Apply saved state
+      tabs.forEach(t => t.classList.remove("active"));
+      contents.forEach(c => c.classList.remove("active"));
       targetTab.classList.add("active");
       targetContent.classList.add("active");
-
-      // Update breadcrumb path if it exists
-      if (pathElement)
-        pathElement.textContent = `/root/${pageName}/${savedTabId}`;
+      if (sidebarRightCurrentPath) sidebarRightCurrentPath.textContent = `/root/${pageName}/${savedTabId}`;
     }
   }
-
-  // 2. CLICK LOGIC: Save the selection when the user clicks
-  tabs.forEach((tab) => {
-    tab.onclick = () => {
-      const target = tab.getAttribute("data-target");
-
-      // UI Swapping
-      tabs.forEach((t) => t.classList.remove("active"));
-      contents.forEach((c) => c.classList.remove("active"));
-      tab.classList.add("active");
-      document.getElementById(target)?.classList.add("active");
-
-      // SAVE TO STORAGE
-      localStorage.setItem(storageKey, target);
-
-      // Update Path & Refresh specific page elements
-      if (pathElement) pathElement.textContent = `/root/${pageName}/${target}`;
-
-      // Re-run scripts that might be inside a newly visible tab
-      initAutoRotation();
-      initCommitGraph();
-      initLibraryFilters();
-    };
-  });
+  tabs.forEach(tab => tab.addEventListener("click", () => {
+    const target = tab.getAttribute("data-target");
+    tabs.forEach(t => t.classList.remove("active"));
+    contents.forEach(c => c.classList.remove("active"));
+    tab.classList.add("active");
+    document.getElementById(target)?.classList.add("active");
+    localStorage.setItem(storageKey, target);
+    if (sidebarRightCurrentPath) sidebarRightCurrentPath.textContent = `/root/${pageName}/${target}`;
+    initAutoRotation();
+    initSessionActivity();
+    initLibraryFilters();
+  }));
 }
 
-// --- Page Loading Logic ---
-async function loadPage(pageName, linkElement) {
-  try {
-    loadingBarContainer.style.display = "block";
-    loadingBar.style.width = "40%";
-
-    const response = await fetch(`pages/${pageName}.html`);
-    if (!response.ok) throw new Error();
-    const rawHTML = await response.text();
-    const doc = new DOMParser().parseFromString(rawHTML, "text/html");
-
-    if (leftSb)
-      leftSb.innerHTML = doc.getElementById("new-left")?.innerHTML || "";
-    if (navBar)
-      navBar.innerHTML = doc.getElementById("new-nav")?.innerHTML || "";
-    if (contentArea)
-      contentArea.innerHTML =
-        doc.getElementById("new-content")?.innerHTML || "";
-
-    window.location.hash = pageName;
-
-    initPageSpecificScripts();
-    currentIdx = 0;
-
-    loadingBar.style.width = "100%";
-    setTimeout(() => {
-      loadingBarContainer.style.display = "none";
-      loadingBar.style.width = "0%";
-    }, 400);
-
-    treeLinks.forEach((l) => l.classList.remove("active"));
-    const activeLink =
-      linkElement || document.querySelector(`[data-page="${pageName}"]`);
-    if (activeLink) activeLink.classList.add("active");
-
-    if (pathElement) pathElement.textContent = `/root/${pageName}`;
-    if (window.innerWidth <= 850) closeAll();
-  } catch (err) {
-    loadingBarContainer.style.display = "none";
-    if (contentArea)
-      contentArea.innerHTML = `<h2>Error</h2><p>Page could not be loaded.</p>`;
-  }
-}
-
-// --- Event Listeners ---
-treeLinks.forEach((link) => {
-  link.onclick = (e) => {
-    e.preventDefault();
-    loadPage(link.getAttribute("data-page"), link);
-  };
-});
-
-window.addEventListener("hashchange", () => {
-  const hash = window.location.hash.substring(1);
-  if (hash) loadPage(hash, null);
-});
-
-window.addEventListener("DOMContentLoaded", () => {
-  const hash = window.location.hash.substring(1);
-  loadPage(hash || "ishini", null);
-});
-
+// Terminal
 function initTerminal() {
-  const input = document.getElementById("terminal-input");
-  const output = document.getElementById("terminal-output");
+  const input = document.getElementById("sidebarRightTerminalInput");
+  const output = document.getElementById("sidebarRightTerminalOutput");
   if (!input || !output) return;
-
   input.onkeydown = (e) => {
     if (e.key === "Enter") {
       const cmd = input.value.toLowerCase().trim();
       if (!cmd) return;
-
-      // Echo User Command
       const line = document.createElement("div");
       line.innerHTML = `<span style="color:var(--accent)">></span> ${cmd}`;
       output.appendChild(line);
-
       executeCommand(cmd, output);
-
       input.value = "";
       output.scrollTop = output.scrollHeight;
     }
   };
 }
 
-// Global state tracker for terminal effects
-const terminalState = {
-  neon: false,
-  ghost: false,
-  invert: false,
-};
-
 function executeCommand(cmd, output) {
   const resp = document.createElement("div");
   resp.style.color = "#00f5ff";
-  resp.style.fontSize = "0.7rem";
+  resp.style.fontSize = "0.75rem";
   resp.style.marginBottom = "8px";
-
   switch (cmd) {
-    case "help":
-      resp.textContent = "Available: neon, ghost, invert, shake, clear, reset";
-      break;
-
+    case "help": resp.textContent = "Available: neon, ghost, invert, shake, clear, reset"; break;
     case "neon":
-      terminalState.neon = !terminalState.neon; // Toggle state
-      const cards = document.querySelectorAll(
-        ".fav-card, .wish-card, .stat-card, .media-item",
-      );
-      cards.forEach((c) => {
+      terminalState.neon = !terminalState.neon;
+      qa(".favoritesCards, .wishlistCards, .statsCards, .mediaItems").forEach(c => {
         c.style.boxShadow = terminalState.neon ? "0 0 20px #ff3399" : "";
         c.style.borderColor = terminalState.neon ? "#ff3399" : "";
       });
-      resp.textContent = terminalState.neon
-        ? "Neon Overdrive: ON"
-        : "Neon Overdrive: OFF";
+      resp.textContent = terminalState.neon ? "Neon: ON" : "Neon: OFF";
       break;
-
     case "ghost":
       terminalState.ghost = !terminalState.ghost;
       document.body.style.opacity = terminalState.ghost ? "0.5" : "1";
-      resp.textContent = terminalState.ghost
-        ? "Stealth Mode: ON"
-        : "Stealth Mode: OFF";
+      resp.textContent = terminalState.ghost ? "Stealth: ON" : "Stealth: OFF";
       break;
-
     case "invert":
       terminalState.invert = !terminalState.invert;
-      document.documentElement.style.filter = terminalState.invert
-        ? "invert(1)"
-        : "invert(0)";
-      resp.textContent = terminalState.invert
-        ? "Colors: INVERTED"
-        : "Colors: NORMAL";
+      document.documentElement.style.filter = terminalState.invert ? "invert(1)" : "none";
+      resp.textContent = terminalState.invert ? "Colors inverted" : "Colors normal";
       break;
-
     case "shake":
-      // Shake is an action, not a state, but we can trigger it again
       document.body.style.animation = "none";
-      setTimeout(() => {
-        document.body.style.animation = "shake 0.5s ease";
-      }, 10);
-      resp.textContent = "Impact triggered.";
+      setTimeout(()=>{ document.body.style.animation = "shake .5s ease"; }, 10);
+      resp.textContent = "Shaken.";
       break;
-
     case "clear":
       output.innerHTML = "";
       return;
-
     case "reset":
-      // Reset all toggle states
-      terminalState.neon = false;
-      terminalState.ghost = false;
-      terminalState.invert = false;
-
-      // Revert Styles
+      terminalState.neon = terminalState.ghost = terminalState.invert = false;
       document.body.style.opacity = "1";
       document.documentElement.style.filter = "none";
       document.body.style.animation = "none";
-      const allCards = document.querySelectorAll(
-        ".fav-card, .wish-card, .stat-card, .media-item",
-      );
-      allCards.forEach((c) => {
-        c.style.boxShadow = "";
-        c.style.borderColor = "";
-      });
-
-      resp.textContent = "System restored to default. (｡•̀ᴗ-)✧";
+      qa(".favoritesCards, .wishlistCards, .statsCards, .mediaItems").forEach(c => { c.style.boxShadow = ""; c.style.borderColor = ""; });
+      resp.textContent = "Reset.";
       break;
-
     default:
       resp.style.color = "#ff4444";
-      resp.textContent = `Unknown command: ${cmd}`;
+      resp.textContent = `Unknown: ${cmd}`;
   }
   output.appendChild(resp);
 }
-// --- Controller for Page-Specific Scripts ---
-function initPageSpecificScripts() {
+
+// After injecting fragments we must rebind fragment-specific event handlers
+function bindFragmentBehavior() {
+  // rebind sidebarRightTreeLinks
+  qa(".sidebarRightTreeLinks", sidebarRightContainer).forEach(link => {
+    link.removeEventListener("click", sidebarLinkHandler);
+    link.addEventListener("click", sidebarLinkHandler);
+  });
+
+  // other per-fragment inits:
   initInternalTabs();
   initAutoRotation();
-  initCommitGraph();
-  initLibraryFilters(); // <--- This was missing from the controller!
-  initTerminal(); // <--- ADD THIS LINE
+  initSessionActivity();
+  initLibraryFilters();
+  initTerminal();
 }
+
+// handler for sidebar links (data-section)
+function sidebarLinkHandler(e) {
+  e.preventDefault();
+  const section = this.getAttribute("data-section");
+  loadPage(section, this);
+}
+
+// load page fragment and inject
+async function loadPage(pageName = "gaming", linkElement = null) {
+  try {
+    if (topLoadingBarContainer) topLoadingBarContainer.style.display = "block";
+    if (topLoadingBar) topLoadingBar.style.width = "40%";
+    const response = await fetch(`pages/${pageName}.html`);
+    if (!response.ok) throw new Error(`Page ${pageName} not found`);
+    const raw = await response.text();
+    const doc = new DOMParser().parseFromString(raw, "text/html");
+
+    // fragment injection (IDs in page fragment)
+    const leftFrag = doc.getElementById("fragmentNewLeft");
+    const navFrag = doc.getElementById("fragmentNewNav");
+    const contentFrag = doc.getElementById("fragmentNewContent");
+
+    if (sidebarLeftContainer) sidebarLeftContainer.innerHTML = leftFrag?.innerHTML || "";
+    if (topNavBar) topNavBar.innerHTML = navFrag?.innerHTML || "";
+    if (mainContent) mainContent.innerHTML = contentFrag?.innerHTML || "";
+
+    // update active link state in the right sidebar (if any)
+    if (sidebarRightContainer) {
+      // re-query the right-tree links inside the injected nav if present
+      const injectedLinks = qa(".sidebarRightTreeLinks", sidebarRightContainer);
+      injectedLinks.forEach(l => l.classList.remove("active"));
+      if (linkElement) linkElement.classList.add("active");
+    }
+
+    // rebind event handlers for elements in injected fragments
+    bindFragmentBehavior();
+
+    if (sidebarRightCurrentPath) sidebarRightCurrentPath.textContent = `/root/${pageName}`;
+    if (window.innerWidth <= 850) closeAll();
+
+    if (topLoadingBar) topLoadingBar.style.width = "100%";
+    setTimeout(() => { if (topLoadingBarContainer) topLoadingBarContainer.style.display = "none"; if (topLoadingBar) topLoadingBar.style.width = "0%"; }, 300);
+  } catch (err) {
+    console.error("loadPage error:", err);
+    if (topLoadingBarContainer) topLoadingBarContainer.style.display = "none";
+    if (mainContent) mainContent.innerHTML = `<h2>Error</h2><p>Page ${pageName} could not be loaded.</p>`;
+  }
+}
+
+// initial wiring: attach static handlers, then load default page
+function initialWireUp() {
+  // top-level sidebar tree links (present in index.html initially)
+  qa(".sidebarRightTreeLinks", sidebarRightContainer).forEach(l => {
+    l.addEventListener("click", sidebarLinkHandler);
+  });
+
+  // ensure toggles/overlay already wired above during definition
+  window.addEventListener("hashchange", () => {
+    const hash = window.location.hash.substring(1);
+    if (hash) loadPage(hash, null);
+  });
+
+  // default load
+  const initial = window.location.hash.substring(1) || "gaming";
+  loadPage(initial, null);
+}
+
+document.addEventListener("DOMContentLoaded", initialWireUp);
